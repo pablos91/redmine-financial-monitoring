@@ -14,19 +14,19 @@ class ChartsController < ApplicationController
     #@issues = Issue.where("project_id = :project_id", { project_id: project.id })
     connection = ActiveRecord::Base.connection
     query = "SELECT \
-      YEAR(GREATEST(start_date,created_on)), MONTH(GREATEST(start_date,created_on)), ROUND(sum(estimated_hours)) \
+      YEAR(IIF(start_date > issues.created_on, issues.start_date, issues.created_on)), MONTH(IIF(start_date > issues.created_on, issues.start_date, issues.created_on)), ROUND(sum(estimated_hours)) \
       FROM issues \
       WHERE project_id in (#{ids}) AND estimated_hours is not null ";
     
     if @charts_settings.start_date != nil
-      query += "AND GREATEST(start_date,created_on) > '#{@charts_settings.start_date}' "
+      query += "AND IIF(start_date > issues.created_on, issues.start_date, issues.created_on) > '#{@charts_settings.start_date}' "
     end
     if @charts_settings.included_status != nil && @charts_settings.included_status != ''
       query += "AND status_id IN (#{@charts_settings.included_status.split(";").join(",")}) "
     end
     
-    query += "GROUP BY YEAR(GREATEST(start_date,created_on)), MONTH(GREATEST(start_date,created_on)) \
-      ORDER BY YEAR(GREATEST(start_date,created_on)), MONTH(GREATEST(start_date,created_on))"
+    query += "GROUP BY YEAR(IIF(start_date > issues.created_on, issues.start_date, issues.created_on)), MONTH(IIF(start_date > issues.created_on, issues.start_date, issues.created_on)) \
+      ORDER BY YEAR(IIF(start_date > issues.created_on, issues.start_date, issues.created_on)), MONTH(IIF(start_date > issues.created_on, issues.start_date, issues.created_on))"
     
     @stats = connection.execute(query).to_a
 
