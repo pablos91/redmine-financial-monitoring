@@ -14,7 +14,7 @@ class ChartsController < ApplicationController
     #@issues = Issue.where("project_id = :project_id", { project_id: project.id })
     connection = ActiveRecord::Base.connection
     query = "SELECT \
-      YEAR(IIF(start_date > issues.created_on, issues.start_date, issues.created_on)), MONTH(IIF(start_date > issues.created_on, issues.start_date, issues.created_on)), ROUND(sum(estimated_hours)) \
+      YEAR(IIF(start_date > issues.created_on, issues.start_date, issues.created_on)), MONTH(IIF(start_date > issues.created_on, issues.start_date, issues.created_on)), ROUND(sum(estimated_hours),0) \
       FROM issues \
       WHERE project_id in (#{ids}) AND estimated_hours is not null ";
     
